@@ -10635,7 +10635,6 @@ class BitcoinAnalyzerController {
         return { price, fearAndGreedIndex, sampleHistory };
     }
     async deleteOldSample(sampleHistory) {
-        console.log(sampleHistory);
         const _sampleHistory = sampleHistory.filter((sample) => !!sample.price.price24h);
         if (_sampleHistory.length <= this._maxSampleHistoryLength)
             return _sampleHistory;

@@ -1,5 +1,5 @@
 // Libs
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, useEffect } from "react";
 // Types
 import { IBitcoinSample } from "@/types";
 // Hooks
@@ -34,7 +34,9 @@ function App() {
   const currentRecommendedAction =
     getCurrentRecommendedAction(analyzeSampleHistory).toUpperCase();
 
-  console.log(analyzeSampleHistory); //TODO: Delete [debugging]
+  useEffect(() => {
+    console.log(analyzeSampleHistory); //TODO: Delete [debugging]
+  }, [analyzeSampleHistory]);
 
   return (
     <Container>
