@@ -13,7 +13,7 @@ const useAnalyzeBitcoin = () => {
   useEffect(() => {
     let isMounted = true;
 
-    const messageChannel: MessageChannel | null = new MessageChannel();
+    const messageChannel = new MessageChannel();
 
     // Subscribe to Bitcoin Analyzer
     navigator.serviceWorker.controller?.postMessage(

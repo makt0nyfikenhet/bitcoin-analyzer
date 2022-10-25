@@ -8,11 +8,12 @@ import {
 } from "@/types";
 // Services
 import { BitcoinService } from "@/services";
+// Controllers
+import { BitcoinCallToActionController } from ".";
 // Models
-import { BitcoinReview } from "@/models";
+import { BitcoinAnalyze } from "@/models";
 // Strategies
 import { BitcoinAnalyzerStrategy } from "@/strategies";
-import { BitcoinCallToActionController } from ".";
 
 /**
  * Singleton Pattern
@@ -20,11 +21,17 @@ import { BitcoinCallToActionController } from ".";
  */
 class BitcoinAnalyzerController implements Observable {
   private static instance: BitcoinAnalyzerController;
+  private database;
+  private running = false;
   private ANALYZE_INTERVAL = 2000; // 2000 for a quick simulation, but it should be 86 400 000 = 24h
   private observers: Observer[] = [];
   private _payload: IBitcoinSample[] = [];
   private _strategy: TAnalyzerStrategy = "S8020_FEAR_GREED_INDEX";
   private _maxSampleHistoryLength = 31;
+
+  private constructor() {
+    this.database = new BitcoinAnalyze();
+  }
 
   get payload() {
     return this._payload;
@@ -55,33 +62,30 @@ class BitcoinAnalyzerController implements Observable {
     }
   }
 
-  private async getCurrentBitcoinState(review: BitcoinReview) {
+  private async getCurrentBitcoinState() {
     const [price, fearAndGreedIndex, sampleHistory = []] = await Promise.all([
       new BitcoinService().getCurrentPrice(),
       new BitcoinService().getFearAndGreedIndex(),
-      review.getSampleHistory(),
+      this.database.getSampleHistory(),
     ]);
-    return { review, price, fearAndGreedIndex, sampleHistory };
+    return { price, fearAndGreedIndex, sampleHistory };
   }
 
-  private deleteOldSample(
-    review: BitcoinReview,
-    sampleHistory: IBitcoinSample[]
-  ) {
+  private async deleteOldSample(sampleHistory: IBitcoinSample[]) {
+    const deletePromises = [];
     if (sampleHistory.length > this._maxSampleHistoryLength) {
       const lastIndex = sampleHistory.length - this._maxSampleHistoryLength;
-      const toDeleteSamples = sampleHistory.slice(0, lastIndex);
-      for (let sample of toDeleteSamples) {
-        review.deleteSample(sample);
+      const samplesToDelete = sampleHistory.slice(0, lastIndex);
+      for (let sample of samplesToDelete) {
+        deletePromises.push(this.database.deleteSample(sample));
       }
     }
+    return Promise.all(deletePromises);
   }
 
   private async analyze() {
-    const review = new BitcoinReview();
-
     const { price, fearAndGreedIndex, sampleHistory } =
-      await this.getCurrentBitcoinState(review);
+      await this.getCurrentBitcoinState();
 
     const action: TBitcoinAction | null = new BitcoinAnalyzerStrategy({
       strategy: this._strategy,
@@ -92,7 +96,7 @@ class BitcoinAnalyzerController implements Observable {
 
     new BitcoinCallToActionController(action).run();
 
-    const currentDoc: IBitcoinSample = await review.setCurrentSample({
+    const currentDoc: IBitcoinSample = await this.database.setCurrentSample({
       price,
       fearAndGreedIndex,
       action,
@@ -100,21 +104,20 @@ class BitcoinAnalyzerController implements Observable {
 
     const currentSampleHistory = [...sampleHistory, currentDoc];
 
-    this.deleteOldSample(review, currentSampleHistory);
-
     this._payload = currentSampleHistory;
 
     this.notify();
+
+    await this.deleteOldSample(currentSampleHistory);
   }
 
   run() {
-    const execute = async () => {
-      setInterval(() => {
-        this.analyze();
+    if (!this.running)
+      setInterval(async () => {
+        await this.analyze().catch(console.log);
       }, this.ANALYZE_INTERVAL);
-    };
 
-    execute().catch(console.log);
+    this.running = true;
   }
 }
 

@@ -74,7 +74,7 @@ class IndexedDB {
 }
 
 // Controllers
-class BitcoinReview {
+class BitcoinAnalyze {
     db;
     constructor() {
         this.db = new IndexedDB("BITCOIN_ANALYZE");
@@ -184,6 +184,7 @@ class ArrayUtils {
 }
 
 // Utils
+const SAMPLE_HISTORY_MAX_LENGTH = 31;
 const BITCOIN_BUY_INDICATOR = 20;
 const BITCOIN_SELL_INDICATOR = 80;
 class Analyze8020Strategy {
@@ -195,8 +196,8 @@ class Analyze8020Strategy {
         this.fearAndGreedIndex = fearAndGreedIndex;
         this.sampleHistory = sampleHistory;
     }
-    hasLastMonthHistory() {
-        return this.sampleHistory.length >= 30;
+    checkSampleHistoryLength() {
+        return this.sampleHistory.length >= SAMPLE_HISTORY_MAX_LENGTH;
     }
     getLastMonthMedianPrice() {
         const prices = this.sampleHistory.map((sample) => sample.price.price24h);
@@ -221,7 +222,7 @@ class Analyze8020Strategy {
             this.getCurrentFearAndGreedIndex() > BITCOIN_SELL_INDICATOR);
     }
     run() {
-        if (!this.hasLastMonthHistory())
+        if (!this.checkSampleHistoryLength())
             return;
         return this.buy() ? "buy" : this.sell() ? "sell" : "hold";
     }
@@ -254,11 +255,16 @@ class AnalyzerStrategy {
  */
 class BitcoinAnalyzerController {
     static instance;
+    database;
+    running = false;
     ANALYZE_INTERVAL = 2000; // 2000 for a quick simulation, but it should be 86 400 000 = 24h
     observers = [];
     _payload = [];
     _strategy = "S8020_FEAR_GREED_INDEX";
     _maxSampleHistoryLength = 31;
+    constructor() {
+        this.database = new BitcoinAnalyze();
+    }
     get payload() {
         return this._payload;
     }
@@ -284,26 +290,27 @@ class BitcoinAnalyzerController {
             observer.update();
         }
     }
-    async getCurrentBitcoinState(review) {
+    async getCurrentBitcoinState() {
         const [price, fearAndGreedIndex, sampleHistory = []] = await Promise.all([
             new BitcoinService().getCurrentPrice(),
             new BitcoinService().getFearAndGreedIndex(),
-            review.getSampleHistory(),
+            this.database.getSampleHistory(),
         ]);
-        return { review, price, fearAndGreedIndex, sampleHistory };
+        return { price, fearAndGreedIndex, sampleHistory };
     }
-    deleteOldSample(review, sampleHistory) {
+    async deleteOldSample(sampleHistory) {
+        const deletePromises = [];
         if (sampleHistory.length > this._maxSampleHistoryLength) {
             const lastIndex = sampleHistory.length - this._maxSampleHistoryLength;
-            const toDeleteSamples = sampleHistory.slice(0, lastIndex);
-            for (let sample of toDeleteSamples) {
-                review.deleteSample(sample);
+            const samplesToDelete = sampleHistory.slice(0, lastIndex);
+            for (let sample of samplesToDelete) {
+                deletePromises.push(this.database.deleteSample(sample));
             }
         }
+        return Promise.all(deletePromises);
     }
     async analyze() {
-        const review = new BitcoinReview();
-        const { price, fearAndGreedIndex, sampleHistory } = await this.getCurrentBitcoinState(review);
+        const { price, fearAndGreedIndex, sampleHistory } = await this.getCurrentBitcoinState();
         const action = new AnalyzerStrategy({
             strategy: this._strategy,
             price,
@@ -311,29 +318,28 @@ class BitcoinAnalyzerController {
             sampleHistory,
         }).run();
         new BitcoinCallToActionController(action).run();
-        const currentDoc = await review.setCurrentSample({
+        const currentDoc = await this.database.setCurrentSample({
             price,
             fearAndGreedIndex,
             action,
         });
         const currentSampleHistory = [...sampleHistory, currentDoc];
-        this.deleteOldSample(review, currentSampleHistory);
         this._payload = currentSampleHistory;
         this.notify();
+        await this.deleteOldSample(currentSampleHistory);
     }
     run() {
-        const execute = async () => {
-            setInterval(() => {
-                this.analyze();
+        if (!this.running)
+            setInterval(async () => {
+                await this.analyze().catch(console.log);
             }, this.ANALYZE_INTERVAL);
-        };
-        execute().catch(console.log);
+        this.running = true;
     }
 }
 
 class BitcoinCallToActionController {
     action;
-    notifyMedium = "email";
+    notificationMethod = "email";
     message = undefined;
     constructor(action) {
         this.action = action;
@@ -351,9 +357,13 @@ class BitcoinCallToActionController {
         console.log("Sending Email...", this.message);
     }
     sendNotify() {
-        return {
+        const method = {
             email: () => this.sendByEmail(),
-        }[this.notifyMedium];
+            //<-- Add your new notification method
+        }[this.notificationMethod];
+        if (!method)
+            return;
+        method();
     }
     run() {
         this.message = this.getActionMessage();
@@ -395,6 +405,7 @@ class MessageController {
         this.observable = this.getObservable();
         if (!this.observable)
             return;
+        this.observable.run();
         this.observable.attach(this);
     }
     getAction() {
@@ -422,11 +433,38 @@ class MessageController {
 /// <reference lib="webworker" />
 /// <reference lib="DOM" />
 /// <reference lib="DOM.Iterable" />
-importScripts("https://cdnjs.cloudflare.com/ajax/libs/pouchdb/7.3.0/pouchdb.min.js");
+const CACHE_NAMES = {
+    IMMUTABLE: "immutable@v1",
+};
+const LIBS = [
+    "https://cdnjs.cloudflare.com/ajax/libs/pouchdb/7.3.0/pouchdb.min.js",
+];
+const URLS = [
+    ...LIBS,
+    // <-- Add your new url segments
+];
+importScripts(LIBS[0]);
 const sw = self;
-sw.addEventListener("install", (_) => console.log("Installing new AutoSync Service Worker"));
-sw.addEventListener("activate", (_) => BitcoinAnalyzerController.getInstance().run());
-self.addEventListener("message", (event) => {
+sw.addEventListener("install", (event) => {
+    console.log("Installing new AutoSync Service Worker");
+    const setCachePromise = caches.open(CACHE_NAMES.IMMUTABLE).then((cache) => {
+        cache.addAll(URLS);
+        sw.skipWaiting(); //Important: Not recommended in production, however depending on desired behavior it, may be fine});
+    });
+    event.waitUntil(setCachePromise);
+});
+sw.addEventListener("activate", (event) => {
+    console.log("new AutoSync Service Worker Activated");
+    const deleteOldCachePromise = caches.keys().then((keys) => keys.forEach((key) => {
+        if (key !== CACHE_NAMES.IMMUTABLE &&
+            key.includes(CACHE_NAMES.IMMUTABLE.split("@")[0]))
+            return caches.delete(key);
+    }));
+    const initBitcoinAnalyzer = Promise.resolve(BitcoinAnalyzerController.getInstance().run());
+    const promises = Promise.all([deleteOldCachePromise, initBitcoinAnalyzer]);
+    event.waitUntil(promises);
+});
+sw.addEventListener("message", (event) => {
     new MessageController({
         data: event.data,
         port: event.ports[0],

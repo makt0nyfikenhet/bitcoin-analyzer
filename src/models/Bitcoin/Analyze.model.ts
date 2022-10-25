@@ -3,7 +3,7 @@ import { IBitcoinSample } from "@/types";
 // Controllers
 import IndexedDB from "@/controllers/IndexedDB/indexedDB.controller";
 
-class BitcoinReview {
+class BitcoinAnalyze {
   private db: IndexedDB;
 
   constructor() {
@@ -26,4 +26,4 @@ class BitcoinReview {
   }
 }
 
-export default BitcoinReview;
+export default BitcoinAnalyze;

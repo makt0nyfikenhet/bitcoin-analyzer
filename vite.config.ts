@@ -41,6 +41,9 @@ const CompileTsServiceWorker = ({ mode }) => ({
 // https://vitejs.dev/config/
 export default ({ mode }) =>
   defineConfig({
+    server: {
+      port: 51712,
+    },
     resolve: {
       alias: [
         {

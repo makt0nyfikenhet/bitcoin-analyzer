@@ -3,6 +3,7 @@ import { IAnalyzerStrategy, TBitcoinAction } from "@/types";
 // Utils
 import { ArrayUtils } from "@/utils";
 
+const SAMPLE_HISTORY_MAX_LENGTH = 31;
 const BITCOIN_BUY_INDICATOR = 20;
 const BITCOIN_SELL_INDICATOR = 80;
 
@@ -17,8 +18,8 @@ class Analyze8020Strategy {
     this.sampleHistory = sampleHistory;
   }
 
-  private hasLastMonthHistory() {
-    return this.sampleHistory.length >= 30;
+  private checkSampleHistoryLength() {
+    return this.sampleHistory.length >= SAMPLE_HISTORY_MAX_LENGTH;
   }
 
   private getLastMonthMedianPrice() {
@@ -52,7 +53,7 @@ class Analyze8020Strategy {
   }
 
   run(): TBitcoinAction {
-    if (!this.hasLastMonthHistory()) return;
+    if (!this.checkSampleHistoryLength()) return;
     return this.buy() ? "buy" : this.sell() ? "sell" : "hold";
   }
 }

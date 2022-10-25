@@ -46,6 +46,7 @@ class MessageController implements Observer {
     this.observable = this.getObservable();
     if (!this.observable) return;
 
+    this.observable.run();
     this.observable.attach(this);
   }
 

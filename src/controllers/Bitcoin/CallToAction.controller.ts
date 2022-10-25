@@ -3,7 +3,7 @@ import { TBitcoinAction } from "@/types";
 
 class BitcoinCallToActionController {
   private action;
-  private notifyMedium = "email";
+  private notificationMethod = "email";
   private message: string | undefined = undefined;
 
   constructor(action: TBitcoinAction) {
@@ -24,9 +24,13 @@ class BitcoinCallToActionController {
   }
 
   private sendNotify() {
-    return {
+    const method = {
       email: () => this.sendByEmail(),
-    }[this.notifyMedium];
+      //<-- Add your new notification method
+    }[this.notificationMethod];
+    if (!method) return;
+
+    method();
   }
 
   run() {

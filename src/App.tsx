@@ -42,7 +42,7 @@ function App() {
           {analyzeSampleHistory.map((sample: IBitcoinSample, idx) => (
             <HorizontalItem key={idx}>
               <Span className={styles.margin_righ}>Día {idx + 1}</Span>
-              <Span>{sample.price.price24h}</Span>
+              <Span>{sample.price?.price24h}</Span>
             </HorizontalItem>
           ))}
         </List>
