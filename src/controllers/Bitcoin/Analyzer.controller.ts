@@ -22,7 +22,6 @@ import { BitcoinAnalyzerStrategy } from "@/strategies";
 class BitcoinAnalyzerController implements Observable {
   private static instance: BitcoinAnalyzerController;
   private database;
-  private running = false;
   private ANALYZE_INTERVAL = 2000; // 2000 for a quick simulation, but it should be 86 400 000 = 24h
   private observers: Observer[] = [];
   private _payload: IBitcoinSample[] = [];
@@ -112,12 +111,9 @@ class BitcoinAnalyzerController implements Observable {
   }
 
   run() {
-    if (!this.running)
-      setInterval(async () => {
-        await this.analyze().catch(console.log);
-      }, this.ANALYZE_INTERVAL);
-
-    this.running = true;
+    setInterval(async () => {
+      await this.analyze().catch(console.log);
+    }, this.ANALYZE_INTERVAL);
   }
 }
 

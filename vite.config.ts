@@ -42,7 +42,7 @@ const CompileTsServiceWorker = ({ mode }) => ({
 export default ({ mode }) =>
   defineConfig({
     server: {
-      port: 51712,
+      port: 51713,
     },
     resolve: {
       alias: [
