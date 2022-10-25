@@ -10342,7 +10342,7 @@ if (typeof __SENTRY_TRACING__ === 'undefined' || __SENTRY_TRACING__) {
   addExtensionMethods();
 }
 
-var name="arenalsoft";var version="0.0.0";var type="module";var scripts={dev:"tsc && vite build && vite",build:"tsc && vite build",preview:"vite preview"};var dependencies={"@sentry/react":"^7.16.0","@sentry/tracing":"^7.16.0",classnames:"^2.3.2","pouchdb-browser":"^7.3.0",react:"^18.2.0","react-dom":"^18.2.0","react-query":"^3.39.2"};var devDependencies={"@rollup/plugin-commonjs":"^23.0.2","@rollup/plugin-json":"^5.0.1","@rollup/plugin-node-resolve":"^15.0.1","@rollup/plugin-replace":"^5.0.1","@types/node":"^18.11.3","@types/pouchdb-browser":"^6.1.3","@types/react":"^18.0.21","@types/react-dom":"^18.0.6","@vitejs/plugin-react":"^2.1.0",path:"^0.12.7","rollup-plugin-typescript2":"^0.34.1",typescript:"^4.6.4",vite:"^3.1.8","vite-plugin-pwa":"^0.13.1"};var npmPackage = {name:name,"private":true,version:version,type:type,scripts:scripts,dependencies:dependencies,devDependencies:devDependencies};
+var name="arenalsoft";var version="0.0.1";var type="module";var scripts={dev:"tsc && vite build && vite",build:"tsc && vite build",preview:"vite preview"};var dependencies={"@sentry/react":"^7.16.0","@sentry/tracing":"^7.16.0",classnames:"^2.3.2","pouchdb-browser":"^7.3.0",react:"^18.2.0","react-dom":"^18.2.0","react-query":"^3.39.2"};var devDependencies={"@rollup/plugin-commonjs":"^23.0.2","@rollup/plugin-json":"^5.0.1","@rollup/plugin-node-resolve":"^15.0.1","@rollup/plugin-replace":"^5.0.1","@types/node":"^18.11.3","@types/pouchdb-browser":"^6.1.3","@types/react":"^18.0.21","@types/react-dom":"^18.0.6","@vitejs/plugin-react":"^2.1.0",path:"^0.12.7","rollup-plugin-typescript2":"^0.34.1",typescript:"^4.6.4",vite:"^3.1.8","vite-plugin-pwa":"^0.13.1"};var npmPackage = {name:name,"private":true,version:version,type:type,scripts:scripts,dependencies:dependencies,devDependencies:devDependencies};
 
 //Libs
 class SentryService {
@@ -10364,7 +10364,13 @@ class SentryService {
     //Send error to sentry
     static sendError(err, props) {
         {
-            captureException(err, props);
+            console.log("Sending Error");
+            try {
+                captureException(err, props);
+            }
+            catch (err) {
+                console.error("Error not sent", err);
+            }
         }
     }
 }

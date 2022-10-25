@@ -74,7 +74,6 @@ class BitcoinAnalyzerController implements Observable {
   private async deleteOldSample(
     sampleHistory: IBitcoinSample[]
   ): Promise<IBitcoinSample[]> {
-    console.log(sampleHistory);
     const _sampleHistory = sampleHistory.filter(
       (sample) => !!sample.price.price24h
     );
