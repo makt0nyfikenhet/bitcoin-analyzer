@@ -17,9 +17,9 @@ class IndexedDB {
   async get(id: string) {
     return this.db.get(id).catch(SentryService.sendError);
   }
-  async getAll() {
+  async getAll(options: any = {}) {
     return this.db
-      .allDocs({ include_docs: true })
+      .allDocs({ ...options, include_docs: true })
       .catch(SentryService.sendError);
   }
   async add(item: any) {

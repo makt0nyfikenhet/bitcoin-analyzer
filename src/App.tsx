@@ -34,6 +34,8 @@ function App() {
   const currentRecommendedAction =
     getCurrentRecommendedAction(analyzeSampleHistory).toUpperCase();
 
+  console.log(analyzeSampleHistory); //TODO: Delete [debugging]
+
   return (
     <Container>
       <ContainerOverlay>
@@ -41,7 +43,9 @@ function App() {
         <List>
           {analyzeSampleHistory.map((sample: IBitcoinSample, idx) => (
             <HorizontalItem key={idx}>
-              <Span className={styles.margin_righ}>Día {idx + 1}</Span>
+              <Span className={styles.margin_righ}>
+                {idx + 1 === 32 ? "Hoy" : `Día ${idx + 1}`}
+              </Span>
               <Span>{sample.price?.price24h}</Span>
             </HorizontalItem>
           ))}

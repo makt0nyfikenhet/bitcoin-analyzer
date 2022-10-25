@@ -1,4 +1,7 @@
+// Libs
 import { Component, ReactNode } from "react";
+// Services
+import { SentryService } from "@/services";
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -16,7 +19,8 @@ class ErrorBoundary extends Component<
 
   componentDidCatch(error: Error) {
     // You can also log the error to an error reporting service
-    console.log(error);
+    console.error(error);
+    SentryService.sendError(error);
   }
 
   render() {

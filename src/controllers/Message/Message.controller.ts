@@ -66,7 +66,7 @@ class MessageController implements Observer {
 
       return action();
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 }

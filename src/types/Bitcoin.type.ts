@@ -24,6 +24,8 @@ export interface IFearAndGreedDataResponse {
   time_until_update: string;
 }
 export interface IBitcoinSample {
+  _id?: string;
+  _rev?: string;
   price: BitcoinPrice;
   fearAndGreedIndex: BitcoinFearAndGreedIndex;
   action: TBitcoinAction;

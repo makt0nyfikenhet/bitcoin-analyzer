@@ -8,6 +8,8 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
+import json from "@rollup/plugin-json";
+import commonjs from "@rollup/plugin-commonjs";
 
 const CompileTsServiceWorker = ({ mode }) => ({
   name: "compile-typescript-service-worker",
@@ -20,7 +22,11 @@ const CompileTsServiceWorker = ({ mode }) => ({
           "process.env.NODE_ENV": JSON.stringify(mode),
         }),
         nodeResolve(),
+        commonjs(),
         typescript2(),
+        json({
+          compact: true,
+        }),
       ],
     };
     const distOutputOptions: OutputOptions = {
@@ -42,7 +48,7 @@ const CompileTsServiceWorker = ({ mode }) => ({
 export default ({ mode }) =>
   defineConfig({
     server: {
-      port: 5174,
+      port: 5175,
     },
     resolve: {
       alias: [

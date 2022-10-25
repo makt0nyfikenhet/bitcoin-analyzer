@@ -71,16 +71,36 @@ class BitcoinAnalyzerController implements Observable {
     return { price, fearAndGreedIndex, sampleHistory };
   }
 
-  private async deleteOldSample(sampleHistory: IBitcoinSample[]) {
+  private async deleteOldSample(
+    sampleHistory: IBitcoinSample[]
+  ): Promise<IBitcoinSample[]> {
+    console.log(sampleHistory);
+    const _sampleHistory = sampleHistory.filter(
+      (sample) => !!sample.price.price24h
+    );
+
+    if (_sampleHistory.length <= this._maxSampleHistoryLength)
+      return _sampleHistory;
+
+    const lastIndex = _sampleHistory.length - this._maxSampleHistoryLength - 1;
+    const newSampleHistory = _sampleHistory.slice(
+      lastIndex,
+      _sampleHistory.length
+    );
+
+    // const samplesToDelete = _sampleHistory.slice(0, lastIndex);
+    const samplesToDelete = _sampleHistory.filter(
+      (sample) =>
+        newSampleHistory.findIndex(
+          (newSample) => newSample._id === sample._id
+        ) === -1
+    );
     const deletePromises = [];
-    if (sampleHistory.length > this._maxSampleHistoryLength) {
-      const lastIndex = sampleHistory.length - this._maxSampleHistoryLength;
-      const samplesToDelete = sampleHistory.slice(0, lastIndex);
-      for (let sample of samplesToDelete) {
-        deletePromises.push(this.database.deleteSample(sample));
-      }
+    for (let sample of samplesToDelete) {
+      deletePromises.push(this.database.deleteSample(sample));
     }
-    return Promise.all(deletePromises);
+    await Promise.all(deletePromises);
+    return newSampleHistory;
   }
 
   private async analyze() {
@@ -102,21 +122,22 @@ class BitcoinAnalyzerController implements Observable {
       action,
     });
 
-    const currentSampleHistory = [...sampleHistory, currentDoc];
+    const currentSampleHistory = await this.deleteOldSample([
+      ...sampleHistory,
+      currentDoc,
+    ]);
 
     this._payload = currentSampleHistory;
 
     this.notify();
 
-    await this.deleteOldSample(currentSampleHistory);
+    await new Promise((resolve) => setTimeout(resolve, this.ANALYZE_INTERVAL));
+
+    await this.analyze().catch(console.error);
   }
 
   run() {
-    if (!this.running)
-      setInterval(async () => {
-        await this.analyze().catch(console.log);
-      }, this.ANALYZE_INTERVAL);
-
+    if (!this.running) this.analyze().catch(console.error);
     this.running = true;
   }
 }
