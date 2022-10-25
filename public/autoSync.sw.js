@@ -255,8 +255,8 @@ class AnalyzerStrategy {
  */
 class BitcoinAnalyzerController {
     static instance;
+    running = false;
     database;
-    // private running = false;
     ANALYZE_INTERVAL = 2000; // 2000 for a quick simulation, but it should be 86 400 000 = 24h
     observers = [];
     _payload = [];
@@ -329,11 +329,11 @@ class BitcoinAnalyzerController {
         await this.deleteOldSample(currentSampleHistory);
     }
     run() {
-        // if (!this.running)
-        setInterval(async () => {
-            await this.analyze().catch(console.log);
-        }, this.ANALYZE_INTERVAL);
-        // this.running = true;
+        if (!this.running)
+            setInterval(async () => {
+                await this.analyze().catch(console.log);
+            }, this.ANALYZE_INTERVAL);
+        this.running = true;
     }
 }
 
@@ -405,7 +405,7 @@ class MessageController {
         this.observable = this.getObservable();
         if (!this.observable)
             return;
-        // this.observable.run();
+        this.observable.run();
         this.observable.attach(this);
     }
     getAction() {
