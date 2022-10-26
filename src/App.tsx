@@ -1,11 +1,5 @@
 // Libs
-import { FC, ReactNode, useEffect } from "react";
-// Types
-import { IBitcoinSample } from "@/types";
-// Hooks
-import { useAnalyzeBitcoin } from "@/hooks";
-// Components
-import { Span, Title } from "@/components";
+import { FC, ReactNode, useState } from "react";
 // Styles
 import styles from "./App.module.css";
 
@@ -19,40 +13,51 @@ const Container: FC<Props> = ({ children }) => (
 const ContainerOverlay: FC<Props> = ({ children }) => (
   <div className={styles.containerOverlay}>{children}</div>
 );
-const List: FC<Props> = ({ children }) => (
-  <div className={styles.list}>{children}</div>
-);
-const HorizontalItem: FC<Props> = ({ children }) => (
-  <div className={styles.sample}>{children}</div>
-);
-const getCurrentRecommendedAction = (analyzeSampleHistory: IBitcoinSample[]) =>
-  analyzeSampleHistory[analyzeSampleHistory.length - 1]?.action ||
-  "Gathering information";
 
 function App() {
-  const { analyzeSampleHistory } = useAnalyzeBitcoin();
-  const currentRecommendedAction =
-    getCurrentRecommendedAction(analyzeSampleHistory).toUpperCase();
+  const [currentProduct, setCurrentProduct] = useState("");
+  const [currentProductPrice, setCurrentProductPrice] = useState(0);
+  const [productList, setProductList] = useState<
+    { name: string; price: number }[]
+  >([]);
 
-  useEffect(() => {
-    console.log(analyzeSampleHistory); //TODO: Delete [debugging]
-  }, [analyzeSampleHistory]);
+  console.log(productList);
 
   return (
     <Container>
       <ContainerOverlay>
-        <Title>Bitcoin Analyzer</Title>
-        <List>
-          {analyzeSampleHistory.map((sample: IBitcoinSample, idx) => (
-            <HorizontalItem key={idx}>
-              <Span className={styles.margin_righ}>
-                {idx + 1 === 32 ? "Hoy" : `Día ${idx + 1}`}
-              </Span>
-              <Span>{sample.price?.price24h}</Span>
-            </HorizontalItem>
-          ))}
-        </List>
-        <Title>{currentRecommendedAction}</Title>
+        <input
+          type="text"
+          value={currentProduct}
+          placeholder="Nombre del producto"
+          onChange={(event) => {
+            console.log(event.target.value);
+            setCurrentProduct(event.target.value);
+          }}
+        />
+        <input
+          type="text"
+          value={currentProductPrice}
+          placeholder="Precio del producto"
+          onChange={(event: any) => {
+            console.log(event.target.value);
+            setCurrentProductPrice(event.target.value);
+          }}
+        />
+
+        <button
+          onClick={() => {
+            const newProductList = [...productList];
+            newProductList.push({
+              name: currentProduct,
+              price: currentProductPrice,
+            });
+
+            setProductList(newProductList);
+          }}
+        >
+          Add to cart
+        </button>
       </ContainerOverlay>
     </Container>
   );
