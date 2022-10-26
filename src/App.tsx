@@ -17,7 +17,9 @@ const ContainerOverlay: FC<Props> = ({ children }) => (
 function App() {
   const [currentProduct, setCurrentProduct] = useState("");
   const [currentProductPrice, setCurrentProductPrice] = useState(0);
-  const [productList, setProductList] = useState([]);
+  const [productList, setProductList] = useState<
+    { name: string; price: number }[]
+  >([]);
 
   console.log(productList);
 
