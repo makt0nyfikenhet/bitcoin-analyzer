@@ -1,5 +1,5 @@
 // Libs
-import { FC, ReactNode, useState } from "react";
+import { BaseSyntheticEvent, FC, ReactNode, useState } from "react";
 // Styles
 import styles from "./App.module.css";
 
@@ -14,50 +14,45 @@ const ContainerOverlay: FC<Props> = ({ children }) => (
   <div className={styles.containerOverlay}>{children}</div>
 );
 
-function App() {
-  const [currentProduct, setCurrentProduct] = useState("");
-  const [currentProductPrice, setCurrentProductPrice] = useState(0);
-  const [productList, setProductList] = useState<
-    { name: string; price: number }[]
-  >([]);
+interface Product {
+  name: string;
+  price: number;
+}
 
+function App() {
+  const [productList, setProductList] = useState<Product[]>([]);
+  const [currentProduct, setCurrentProduct] = useState<Product>({
+    name: "",
+    price: 0,
+  });
+
+  console.log(currentProduct);
   console.log(productList);
+
+  const handleOnChange = (e: BaseSyntheticEvent) =>
+    setCurrentProduct((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const handleOnAddToList = () =>
+    setProductList((prev) => [...prev, currentProduct]);
 
   return (
     <Container>
       <ContainerOverlay>
         <input
+          name="name"
           type="text"
-          value={currentProduct}
+          value={currentProduct.name}
           placeholder="Nombre del producto"
-          onChange={(event) => {
-            console.log(event.target.value);
-            setCurrentProduct(event.target.value);
-          }}
+          onChange={handleOnChange}
         />
         <input
+          name="price"
           type="text"
-          value={currentProductPrice}
+          value={currentProduct.price}
           placeholder="Precio del producto"
-          onChange={(event: any) => {
-            console.log(event.target.value);
-            setCurrentProductPrice(event.target.value);
-          }}
+          onChange={handleOnChange}
         />
-
-        <button
-          onClick={() => {
-            const newProductList = [...productList];
-            newProductList.push({
-              name: currentProduct,
-              price: currentProductPrice,
-            });
-
-            setProductList(newProductList);
-          }}
-        >
-          Add to cart
-        </button>
+        <button onClick={handleOnAddToList}>Add to cart</button>
       </ContainerOverlay>
     </Container>
   );
