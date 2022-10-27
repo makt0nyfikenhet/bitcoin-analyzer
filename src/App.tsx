@@ -1,5 +1,5 @@
 // Libs
-import { FC, ReactNode, useState } from "react";
+import { BaseSyntheticEvent, FC, ReactNode, useState } from "react";
 // Styles
 import styles from "./App.module.css";
 
@@ -29,7 +29,7 @@ function App() {
   console.log(currentProduct);
   console.log(productList);
 
-  const handleOnChange = (e: any) =>
+  const handleOnChange = (e: BaseSyntheticEvent) =>
     setCurrentProduct((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleOnAddToList = () =>
