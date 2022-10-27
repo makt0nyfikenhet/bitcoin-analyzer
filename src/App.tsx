@@ -33,13 +33,7 @@ function App() {
     setCurrentProduct((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleOnAddToList = () =>
-    setProductList((prev) => [
-      ...prev,
-      {
-        name: currentProduct.name,
-        price: currentProduct.price,
-      },
-    ]);
+    setProductList((prev) => [...prev, { ...currentProduct }]);
 
   return (
     <Container>
