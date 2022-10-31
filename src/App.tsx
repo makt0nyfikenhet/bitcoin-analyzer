@@ -12,46 +12,50 @@ interface Product {
 interface ProductList {
   productList: Product[];
 }
+interface ProductItem {
+  product: Product;
+}
 
-const ProductList: FC<ProductList> = (props) => {
-  // console.log(props, "hola")
-  const _data = Object.values(props);
-  console.log(_data, "hola");
+// const ListItem: FC<Product> = (props) => {
+//   // console.log(props, "hola")
+//   const _data = Object.values(props);
+//   console.log(_data, "hola");
+
+//   // La razón por la que no le renderiza el código <ol>...</ol> es porque el .map, aunque esté dentro de un return, el map a su vez lo que hace es
+//   // ejecutar otra función dentro de él, por lo que la función del .map también debe tener su propio return, el return del map le retorna al return del
+//   // componente ListItem, y este segundo le retorna a React el código HTML y React lo retorna al DOM
+//   return (
+//     <>
+//       {_data.map((li, index) => {
+//         {
+//           console.log(li + " " + "prueba");
+//         }
+//         return (
+//           <ol key={index} style={{ color: "white" }}>
+//             <li>{li}</li>
+//           </ol>
+//         );
+//       })}
+//     </>
+//   );
+// };
+
+const ListItem: FC<ProductItem> = ({ product }) => {
   return (
-    <>
-      {_data.map((li, index) => {
-        {
-          console.log(li + " " + "prueba");
-        }
-        <ol key={index}>
-          <li>{li}</li>
-        </ol>;
-      })}
-    </>
+    <li style={{ color: "white" }}>
+      {product.name} - {product.price}
+    </li>
   );
 };
 
-const ListItem: FC<Product> = (props) => {
-  // console.log(props, "hola")
-  const _data = Object.values(props);
-  console.log(_data, "hola");
-
-  // La razón por la que no le renderiza el código <ol>...</ol> es porque el .map, aunque esté dentro de un return, el map a su vez lo que hace es
-  // ejecutar otra función dentro de él, por lo que la función del .map también debe tener su propio return, el return del map le retorna al return del
-  // componente ListItem, y este segundo le retorna a React el código HTML y React lo retorna al DOM
+const ProductList: FC<ProductList> = (props) => {
+  console.log(props);
   return (
-    <>
-      {_data.map((li, index) => {
-        {
-          console.log(li + " " + "prueba");
-        }
-        return (
-          <ol key={index} style={{ color: "white" }}>
-            <li>{li}</li>
-          </ol>
-        );
-      })}
-    </>
+    <ul>
+      {props.productList.map((product, index) => (
+        <ListItem key={index.toString()} product={product} />
+      ))}
+    </ul>
   );
 };
 
@@ -100,9 +104,7 @@ function App() {
         <button onClick={handleOnAddToList} value="submit">
           Add to cart
         </button>
-        <ul>
-          <ListItem name={currentProduct.name} price={currentProduct.price} />
-        </ul>
+        <ProductList productList={productList} />
       </ContainerOverlay>
     </Container>
   );
