@@ -11,15 +11,22 @@ interface Product{
 }
 
 const ListItem: FC<Product> = (props) =>{
-  return(  
+  // console.log(props, "hola")
+  const _data = Object.values(props)
+  console.log(_data, "hola")
+  return(
     <>
-      <li>
-        {props.name}
-      </li>
-      <li>
-        {props.price}
-      </li>
-    </> 
+      {
+        _data.map((li, index)=>{  
+        {console.log(li + " " + "prueba")}
+        <ol key={index}>    
+          <li>
+            {li}
+          </li>
+       </ol>
+    })
+      }
+    </>
   )
 }
 
@@ -31,7 +38,7 @@ const ContainerOverlay: FC<Props> = ({ children }) => (
 );
 
 function App() {
-  const [productList, setProductList] = useState<Props[]>([]);
+  const [productList, setProductList] = useState<Product[]>([]);
   const [currentProduct, setCurrentProduct] = useState<Product>({
     name: "",
     price: 0,
@@ -40,11 +47,11 @@ function App() {
   console.log(currentProduct);
   console.log(productList);
   
-  const handleOnChange = (e: BaseSyntheticEvent) =>
+  const handleOnChange = (e: BaseSyntheticEvent) => //to can write in the input field
   setCurrentProduct((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   
   const handleOnAddToList = () =>
-  setProductList((prev) => [...prev, currentProduct]);
+  setProductList((prev) => [...prev, currentProduct]); //add new product and save it in a new array 
 
   return (
     <Container>
@@ -63,8 +70,15 @@ function App() {
           placeholder="Precio del producto"
           onChange={handleOnChange}
         />
-        <button onClick={handleOnAddToList}>Add to cart</button>
-        <ListItem name={currentProduct.name} price={currentProduct.price}/>
+        <button onClick={handleOnAddToList} value="submit">Add to cart</button>
+        <ul>
+          <ListItem 
+            name={currentProduct.name}
+            price={currentProduct.price}
+          />
+        </ul>
+        
+        
       </ContainerOverlay>
     </Container>
   );
