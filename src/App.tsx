@@ -228,7 +228,7 @@ function App() {
     id: null,
   });
   const [dataToEdit, setDataToEdit] = useState(null)
-
+  console.log(currentProduct);
   console.log(currentProduct);
   console.log(productList);
 
