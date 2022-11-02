@@ -67,6 +67,49 @@ const ProductList: FC<ProductList> = (props) => {
   );
 };
 
+// const ListItem: FC<Product> = (props) => {
+//   // console.log(props, "hola")
+//   const _data = Object.values(props);
+//   console.log(_data, "hola");
+
+//   // La razón por la que no le renderiza el código <ol>...</ol> es porque el .map, aunque esté dentro de un return, el map a su vez lo que hace es
+//   // ejecutar otra función dentro de él, por lo que la función del .map también debe tener su propio return, el return del map le retorna al return del
+//   // componente ListItem, y este segundo le retorna a React el código HTML y React lo retorna al DOM
+//   return (
+//     <>
+//       {_data.map((li, index) => {
+//         {
+//           console.log(li + " " + "prueba");
+//         }
+//         return (
+//           <ol key={index} style={{ color: "white" }}>
+//             <li>{li}</li>
+//           </ol>
+//         );
+//       })}
+//     </>
+//   );
+// };
+
+const ListItem: FC<ProductItem> = ({ product }) => {
+  return (
+    <li style={{ color: "white" }}>
+      {product.name} - {product.price}
+    </li>
+  );
+};
+
+const ProductList: FC<ProductList> = (props) => {
+  console.log(props);
+  return (
+    <ul>
+      {props.productList.map((product, index) => (
+        <ListItem key={index.toString()} product={product} />
+      ))}
+    </ul>
+  );
+};
+
 const Container: FC<Props> = ({ children }) => (
   <div className={styles.container}>{children}</div>
 );
@@ -80,17 +123,18 @@ function App() {
     name: "",
     price: 0,
   });
-  
-  console.log(currentProduct + 'current product');
+
+  console.log(currentProduct);
   console.log(productList);
-  
-  //to can write in the input field 
-  const handleOnChange = ( e: BaseSyntheticEvent) => 
+
+  const handleOnChange = (
+    e: BaseSyntheticEvent //to can write in the input field
+  ) =>
     setCurrentProduct((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  
+
   const handleOnAddToList = () =>
-  setProductList((prev) => [...prev, currentProduct]);
-  
+    setProductList((prev) => [...prev, currentProduct]); //add new product and save it in a new array
+
   return (
     <Container>
       <ContainerOverlay>
@@ -107,7 +151,7 @@ function App() {
           value={currentProduct.price}
           placeholder="Precio del producto"
           onChange={handleOnChange}
-        />-
+        />
         <button onClick={handleOnAddToList} value="submit">
           Add to cart
         </button>
