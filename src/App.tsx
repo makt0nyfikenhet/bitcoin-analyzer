@@ -229,7 +229,6 @@ function App() {
   });
   const [dataToEdit, setDataToEdit] = useState(null)
   console.log(currentProduct);
-  console.log(currentProduct);
   console.log(productList);
 
   const handleOnChange = (e: BaseSyntheticEvent) => {
