@@ -5,14 +5,14 @@ import { Product } from "../../ProductForm";
 // Styles
 import styles from "./Form1.module.css";
 
-interface Form1 {
+interface CreateForm {
 	setProductList: FC<(prev: Product[]) => Product[]>;
 	placeHolder1?: string;
 	placeHolder2?: string;
 	children?: ReactNode;
 }
 
-const Form1: FC<Form1> = ({
+const CreateForm: FC<CreateForm> = ({
 	setProductList,
 	placeHolder1,
 	placeHolder2,
@@ -62,4 +62,4 @@ const Form1: FC<Form1> = ({
 	);
 };
 
-export default Form1;
+export default CreateForm;

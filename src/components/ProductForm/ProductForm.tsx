@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Form1 } from "./components/Form1";
+import { CreateForm } from "./components/CreateForm";
 import { ProductList } from "./components/ProductList";
 
 export interface Product {
@@ -17,9 +17,10 @@ const inicialValue: Product[] = [
 const ProductForm = () => {
 	const [dataToEdit, setDataToEdit] = useState(null);
 	const [productList, setProductList] = useState(inicialValue);
+
 	return (
 		<>
-			<Form1
+			<CreateForm 
 				setProductList={setProductList}
 				placeHolder1={"hola"}
 				placeHolder2={"ke ace"}
@@ -29,7 +30,7 @@ const ProductForm = () => {
 					dataToEdit={dataToEdit}
 					setDataToEdit={setDataToEdit}
 				/>
-			</Form1>
+			</CreateForm>
 		</>
 	);
 };
