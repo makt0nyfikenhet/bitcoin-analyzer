@@ -1,38 +1,40 @@
+// Libs
 import { useState } from "react";
-import { CreateForm } from "./components/CreateForm";
+// Types
+import { Product } from "@/types";
+// Components
+import { FormInputs } from "./components/FormInputs";
 import { ProductList } from "./components/ProductList";
 
-export interface Product {
-	name: string;
-	price?: string;
-	id?: number | null;
-}
-const inicialValue: Product[] = [
-	{
-		name: "string",
-		price: "string",
-		id: 5,
-	},
+const initialValue: Product[] = [
+  {
+    name: "",
+    price: "string",
+    id: 5,
+  },
 ];
 const ProductForm = () => {
-	const [dataToEdit, setDataToEdit] = useState(null);
-	const [productList, setProductList] = useState(inicialValue);
+  const [dataToEdit, setDataToEdit] = useState(null);
+  const [productList, setProductList] = useState(initialValue);
 
-	return (
-		<>
-			<CreateForm 
-				setProductList={setProductList}
-				placeHolder1={"hola"}
-				placeHolder2={"ke ace"}
-			>
-				<ProductList
-					productList={productList}
-					dataToEdit={dataToEdit}
-					setDataToEdit={setDataToEdit}
-				/>
-			</CreateForm>
-		</>
-	);
+  const onSetProductList = (currentProduct: Product) =>
+    setProductList((prev) => [...prev, currentProduct]);
+
+  return (
+    <>
+      <FormInputs
+        setProductList={onSetProductList}
+        placeHolderName={"Product name"}
+        placeHolderPrice={"Product price"}
+      >
+        <ProductList
+          productList={productList}
+          dataToEdit={dataToEdit}
+          setDataToEdit={setDataToEdit}
+        />
+      </FormInputs>
+    </>
+  );
 };
 
 export default ProductForm;

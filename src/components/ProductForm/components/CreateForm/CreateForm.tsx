@@ -1,6 +1,6 @@
 // Libs
 import React, { useState, FC, BaseSyntheticEvent, ReactNode } from "react";
-import { Product } from "../../ProductForm";
+import {Product}  from "@/types";
 
 // Styles
 import styles from "./Form1.module.css";
